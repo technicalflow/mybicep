@@ -1,19 +1,23 @@
 targetScope = 'resourceGroup'
 
 @description('Location')
+// @allowed([
+//   'francecentral'
+//   'germanywestcentral'
+// ])
 param location string = resourceGroup().location
 
 @maxLength(12)
-param env string = 'Dev/Test'
+param env_tag string = 'Dev/Test'
 
 param basename string = 'msa'
 
-var location_var = location
-var kvname = '${basename}${location_var}_kv'
+var loc = (location == 'francecentral') ? 'frc' : (location == 'germanywestcentral') ? 'gwc' : '${location}'
+var kvname = '${basename}${loc}_kv'
 
 resource mykv 'Microsoft.KeyVault/vaults@2019-09-01' = {
   name: kvname
-  location: location_var
+  location: location
   properties: {
     enabledForDeployment: true
     enabledForTemplateDeployment: true
@@ -40,7 +44,7 @@ resource mykv 'Microsoft.KeyVault/vaults@2019-09-01' = {
     ]
   }
   tags: {
-    Environment: env
+    Environment: env_tag
     Owner: 'Marek Serba'
   }
 }

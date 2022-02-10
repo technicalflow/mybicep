@@ -34,6 +34,9 @@ param vmadmin string = 'madmin'
 ])
 param ubuntuOSVersion string = '18.04-LTS'
 
+@description('IP Access to resource')
+param yourip string = '95.108.30.54' // run curl testip.fun to know yourip
+
 var vmmmainname = toLower('${vmname}-${uniqueString(resourceGroup().id, vmname)}')
 var vmmodifiedname_var = '${vmmmainname}_VM'
 var publicIPAddressName_var = '${vmmmainname}_PIP'
@@ -77,7 +80,7 @@ resource nsgmodifiedname 'Microsoft.Network/networkSecurityGroups@2015-06-15' = 
           protocol: 'Tcp'
           sourcePortRange: '*'
           destinationPortRange: '22'
-          sourceAddressPrefix: '95.108.30.54/32'
+          sourceAddressPrefix: '${yourip}/32'
           destinationAddressPrefix: '*'
           access: 'Allow'
           priority: 1000

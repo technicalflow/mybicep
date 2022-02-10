@@ -7,6 +7,8 @@ var loc = (location == 'francecentral') ? 'frc' : (location == 'germanywestcentr
 
 var rg = '${basename}_${loc}_rg1'
 
+var containerrg1 = '${basename}_${loc}_crg1'
+
 var websites = [
   {
     name: 'mywebapp1'
@@ -20,8 +22,21 @@ var websites = [
 
 resource rg1 'Microsoft.Resources/resourceGroups@2021-04-01' = if (deployresourcegroup) {
   name: rg
-  // location: deployment().location
   location: location
+  tags: {
+    Environment: 'Dev/Test'
+    Owner: 'Marek'
+  }
+}
+
+resource containerGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: containerrg1
+  location: location
+  tags: {
+    Environment: 'Dev/Test'
+    Owner: 'Marek'
+    Project: 'msa_demo'
+  }
 }
 
 module webplan 'modules/webplan.bicep' = {
@@ -46,3 +61,12 @@ module webapp 'modules/webapp.bicep' = [for site in websites: {
     webplan
   ]
 }]
+
+module acr 'modules/container-registry.bicep' = {
+  scope: containerGroup
+  name: '${basename}${loc}-mynewacr-${uniqueString(containerGroup.id)}-deploy'
+  params: {
+    name: '${basename}${loc}-mynewacr-${uniqueString(containerGroup.id)}'
+    location: location
+  }
+}

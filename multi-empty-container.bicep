@@ -1,9 +1,10 @@
 targetScope = 'resourceGroup'
+param dockerimage string = 'techfellow/ipcheck:ubuntu'
 
 var container1name = 'msagwcc1'
-var container1image = 'techfellow/ipcheck:ubuntu'
 var container2name = 'msagwcc2'
-var container2image = 'techfellow/ipcheck:ubuntu'
+var container1image = dockerimage
+var container2image = dockerimage
 
 resource ACI_volume 'Microsoft.ContainerInstance/containerGroups@2020-11-01' = {
   name: 'volume-demo'

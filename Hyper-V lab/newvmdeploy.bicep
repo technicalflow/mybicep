@@ -16,6 +16,8 @@ param vmNamePrefix string = 'HyperV'
   'Server2019'
 ])
 param operatingSystem string = 'Server2016'
+
+@description('IP Access to resource')
 param yourip string = '95.108.30.54' // run curl testip.fun to know yourip
 
 @description('Globally unique DNS prefix for the Public IPs used to access the Virtual Machines')

@@ -5,13 +5,12 @@ param location string = resourceGroup().location
 param env string = 'Dev/Test'
 param basename string = 'msa'
 
-var location_var = location
-var name_var = '${basename}${location_var}sa'
+var name_var = '${basename}${location}sa'
 var sku_var = (env == 'Production') ? 'Standard_GRS' : 'Standard_LRS'
 
 resource mystorageaccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   name: name_var
-  location: location_var
+  location: location
   kind: 'StorageV2'
   sku: {
     name: sku_var
