@@ -47,7 +47,7 @@ Import-DscResource -ModuleName 'PSDesiredStateConfiguration', 'xHyper-V', 'xPSDe
         }
        
         xRemoteFile vhdxinstall {  
-        Uri             = "https://hypervlabmigration.blob.core.windows.net/sourcevhd/sourceVM2k16.vhdx?sp=r&st=2018-07-17T10:02:11Z&se=2019-07-17T18:02:11Z&spr=https&sv=2017-11-09&sig=cVrGeIyN%2Bb6fUIkFlndnq9sAz5GTnOh9uhqCLDGWFYY%3D&sr=b"
+        Uri             = "long uri to vhdx"
         DestinationPath =  $NewSystemVHDPath
         DependsOn       =  "[File]SetupDir"
         MatchSource     =  $false

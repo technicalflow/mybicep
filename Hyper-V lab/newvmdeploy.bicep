@@ -40,9 +40,9 @@ var virtualMachineSize = [
 ]
 
 var VNETName = '${vmNamePrefix}_VNET'
-var VNETPrefix = '172.2.0.0/16'
+var VNETPrefix = '172.16.0.0/16'
 var VNETSubnet1Name = 'HypervSubnet'
-var VNETSubnet1Prefix = '172.2.1.0/24'
+var VNETSubnet1Prefix = '172.16.1.0/24'
 var diagnosticSAname = 'hypervsadigest'
 var pipname = '${vmNamePrefix}_PIP'
 var subnetRef = resourceId('Microsoft.Network/virtualNetworks/subnets', VNETName, VNETSubnet1Name)
