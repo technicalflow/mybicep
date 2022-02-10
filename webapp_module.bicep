@@ -9,14 +9,16 @@ var rg = '${basename}_${loc}_rg1'
 
 var containerrg1 = '${basename}_${loc}_crg1'
 
+var acrname = toLower('${basename}${loc}acr${uniqueString(containerGroup.id)}')
+
 var websites = [
   {
-    name: 'mywebapp1'
-    tag: 'dev'
+    name: 'webapp1'
+    tag: 'latest'
   }
   {
-    name: 'mywebapp2'
-    tag: 'prod'
+    name: 'webapp2'
+    tag: 'alpine'
   }
 ]
 
@@ -55,7 +57,7 @@ module webapp 'modules/webapp.bicep' = [for site in websites: {
     location: location
     appplanid: webplan.outputs.appiid
     dockerimage: 'techfellow/webappa'
-    dockerimagetag: 'latest'
+    dockerimagetag: site.tag
   }
   dependsOn: [
     webplan
@@ -64,9 +66,9 @@ module webapp 'modules/webapp.bicep' = [for site in websites: {
 
 module acr 'modules/container-registry.bicep' = {
   scope: containerGroup
-  name: '${basename}${loc}-mynewacr-${uniqueString(containerGroup.id)}-deploy'
+  name: '${acrname}-deploy'
   params: {
-    name: '${basename}${loc}-mynewacr-${uniqueString(containerGroup.id)}'
+    name: acrname
     location: location
   }
 }
