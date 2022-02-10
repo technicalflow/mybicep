@@ -1,37 +1,49 @@
 targetScope = 'resourceGroup'
 
-@description('App Plan Name')
-param appplanname string = 'msa-app-plan-1'
-
 @description('App Name')
-param appname string = 'msa-app-1'
+param appname string
 
 @description('Location')
 param location string = resourceGroup().location
 
-var location_var = location
+param dockerimage string
+param dockerimagetag string
 
-resource appServicePlan 'Microsoft.Web/serverfarms@2021-02-01' = {
-  name: appplanname
-  location: location_var
-  sku: {
-    name: 'F1'
-    capacity: 1
-  }
-  tags: {
-    'resourceGroup().tags': 'Owner'
-  }
-}
+param appplanid string
 
 resource webApplication 'Microsoft.Web/sites@2021-02-01' = { 
   name: appname
-  location: location_var
-  tags: {
-    'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/appServicePlan': 'Resource'
-  }
+  location: location
+  // tags: {
+  //   'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/appServicePlan': 'Resource'
+  // }
   properties: {
-    serverFarmId: appServicePlan.id
+    siteConfig: {
+      linuxFxVersion: 'DOCKER|${dockerimage}:${dockerimagetag}'
+      appSettings: [
+        {
+          'name': 'DOCKER_REGISTRY_SERVER_USERNAME'
+          'value': ''
+
+        }
+        {
+          'name': 'DOCKER_REGISTRY_SERVER_PASSWORD'
+          'value': ''
+
+        }
+        {
+          'name': 'DOCKER_REGISTRY_SERVER_URL'
+          'value': 'https://index.docker.io'
+
+        }
+        {
+          'name': 'WEBSITES_ENABLE_APP_SERVICE_STORAGE'
+          'value': 'false'
+        }
+      ]
+    }
+    serverFarmId: appplanid
   }
 }
 
-output webApplicatioHostname string = webApplication.properties.defaultHostName
+// output webApplicatioHostname string = webApplication.properties.defaultHostName
