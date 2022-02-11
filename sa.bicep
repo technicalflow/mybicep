@@ -1,12 +1,14 @@
 targetScope = 'resourceGroup'
 @description('Location')
 param location string = resourceGroup().location
+param servicename string = 'sa'
+param env string = 'Dev'
+param prefix string = 'msa'
 
-param env string = 'Dev/Test'
-param basename string = 'msa'
+var loc = (location == 'francecentral') ? 'frc' : (location == 'germanywestcentral') ? 'gwc' : '${location}'
 
-var name_var = '${basename}${location}sa'
-var sku_var = (env == 'Production') ? 'Standard_GRS' : 'Standard_LRS'
+var name_var = '${prefix}${loc}${servicename}_${env}'
+var sku_var = (env == 'Prod') ? 'Standard_GRS' : 'Standard_LRS'
 
 resource mystorageaccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   name: name_var
