@@ -5,9 +5,12 @@ param servicename string = 'sa'
 param env string = 'Dev'
 param prefix string = 'msa'
 
+// param startingInt int = 0001
+// param numberOfElements int = 1
+
 var loc = (location == 'francecentral') ? 'frc' : (location == 'germanywestcentral') ? 'gwc' : '${location}'
 
-var name_var = '${prefix}${loc}${servicename}_${env}'
+var name_var = toLower('${prefix}${loc}${servicename}${env}')
 var sku_var = (env == 'Prod') ? 'Standard_GRS' : 'Standard_LRS'
 
 resource mystorageaccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {

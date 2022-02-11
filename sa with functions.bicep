@@ -1,8 +1,8 @@
 targetScope = 'resourceGroup'
 param name string = 'sa'
-param env string = 'Dev'
+param env string = 'dev'
 
-var location = (env == 'Prod') ? 'eastus' : 'westus'
+var location = (env == 'prod') ? 'eastus' : 'westus'
 
 var regions = [
   'francecentral'
@@ -12,11 +12,11 @@ var regions = [
 var prefix = 'msa'
 var fullname = '${prefix}${name}'
 
-var sku = (env == 'Prod') ? 'Standard_GRS' : 'Standard_LRS'
+var sku = (env == 'prod') ? 'Standard_GRS' : 'Standard_LRS'
 
 // adding interpolation for storagename (region,i)
 resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = [ for (region,i) in regions: {
-  name: '${fullname}${i}'
+  name: '${fullname}${env}${i}'
   location: region
   kind: 'StorageV2'
   sku: {
@@ -27,8 +27,8 @@ resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = [ for (
   }
 }]
 
-resource prodstorageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = if (env == 'Prod') {
-  name: '${fullname}_${env}'
+resource prodstorageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = if (env == 'prod') {
+  name: '${fullname}${env}0001'
   location: first(regions)
   kind: 'StorageV2'
   sku: {
@@ -39,8 +39,8 @@ resource prodstorageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = if 
   }
 }
 
-resource devstorageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = if (env == 'Dev'){
-  name: '${fullname}_${env}'
+resource devstorageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = if (env == 'dev'){
+  name: '${fullname}${env}'
   location: last(regions)
   kind: 'StorageV2'
   sku: {
@@ -51,8 +51,8 @@ resource devstorageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = if (
   }
 }
 
-resource mystorageaccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
-  name: '${fullname}_pr'
+resource prstorageaccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
+  name: '${fullname}${env}pr'
   location: location
   sku: {
     name: sku
