@@ -28,7 +28,7 @@ resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = [ for (
 }]
 
 resource prodstorageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = if (env == 'prod') {
-  name: '${fullname}${env}0001'
+  name: '${fullname}${env}10'
   location: first(regions)
   kind: 'StorageV2'
   sku: {
