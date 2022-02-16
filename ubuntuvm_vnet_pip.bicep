@@ -7,7 +7,7 @@ param vmsize string = 'Standard_B1ms'
 param prefix string = 'msa'
 
 @description('VNet name')
-param vnetName string = 'VNET001'
+param vnetName string = 'vnet001'
 
 @description('Address prefix')
 param vnetAddressPrefix string = '10.10.0.0/16'
@@ -37,25 +37,27 @@ param vmadmin string = 'vmadmin'
 // ])
 // param ubuntuOSVersion string = '20.04-LTS'
 
-param env string = 'Dev'
+param env string = 'dev'
 
 @description('IP Access to resource')
 param yourip string = '95.108.30.54' // run curl testip.fun to know yourip
 
 var loc = (location == 'francecentral') ? 'frc' : (location == 'germanywestcentral') ? 'gwc' : '${location}'
-var mmainname = toLower('${prefix}${loc}${env}')
+var mmainname = '${prefix}${loc}${env}'
 // var vmmmainname = toLower('${vmname}-${uniqueString(resourceGroup().id, vmname)}')
-var vmmodifiedname_var = '${mmainname}VM001'
+var vmmodifiedname_var = '${mmainname}vm001'
 var vnetfullname = '${mmainname}_${vnetName}'
-var publicIPAddressName_var = '${mmainname}_PIP001'
+var publicIPAddressName_var = '${mmainname}pip001'
 var dnsLabelPrefix = toLower(vmmodifiedname_var)
-var nsgnic = '${mmainname}_NSG001'
-var subnetnsg = '${mmainname}${subnet1Name}subnet_NSG001'
-var nicname_var = '${vmmodifiedname_var}_NIC1'
+var nsgnic = '${mmainname}nsg001'
+var subnetnsg = '${mmainname}${subnet1Name}subnetnsg001'
+var nicname_var = '${vmmodifiedname_var}nic1'
 var ipconfig = 'ipconfig1'
-var cloudinit = 'I2Nsb3VkLWNvbmZpZwpwYWNrYWdlX3VwZ3JhZGU6IHRydWUKcGFja2FnZXM6CiAgLSBuZ2lueAogIC0gY3VybAogIC0gaHRvcAogIC0gdWZ3CnJ1bmNtZDoKICAtIHN5c3RlbWN0bCBlbmFibGUgLS1ub3cgbmdpbngKCg=='
+var cloudinit = 'I2Nsb3VkLWNvbmZpZwpwYWNrYWdlX3VwZ3JhZGU6IHRydWUKcGFja2FnZXM6CiAgLSBjdXJsCiAgLSBodG9wCiAgLSB1ZncKcnVuY21kOgogIC0gc25hcCByZW1vdmUgbHhkCiAgLSBzbmFwIHJlZnJlc2gKICAtIHNuYXAgaW5zdGFsbCBseGQKCg=='
 
-resource nsgmodifiedname 'Microsoft.Network/networkSecurityGroups@2020-11-01' = {
+// var cloudinitnginx = 'I2Nsb3VkLWNvbmZpZwpwYWNrYWdlX3VwZ3JhZGU6IHRydWUKcGFja2FnZXM6CiAgLSBuZ2lueAogIC0gY3VybAogIC0gaHRvcAogIC0gdWZ3CnJ1bmNtZDoKICAtIHN5c3RlbWN0bCBlbmFibGUgLS1ub3cgbmdpbngKCg=='
+
+resource nsg 'Microsoft.Network/networkSecurityGroups@2020-11-01' = {
   name: nsgnic
   location: location
   tags: {
@@ -170,7 +172,7 @@ resource nicname 'Microsoft.Network/networkInterfaces@2020-11-01' = {
       }
     ]
     networkSecurityGroup: {
-      id: nsgmodifiedname.id
+      id: nsg.id
     }
   }
   dependsOn: [
@@ -178,7 +180,7 @@ resource nicname 'Microsoft.Network/networkInterfaces@2020-11-01' = {
   ]
 }
 
-resource vmmodifiedname 'Microsoft.Compute/virtualMachines@2020-12-01' = {
+resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: vmmodifiedname_var
   location: location
   tags: {
@@ -231,7 +233,7 @@ resource vmmodifiedname 'Microsoft.Compute/virtualMachines@2020-12-01' = {
       }
     }
     osProfile: {
-      computerName: prefix
+      computerName: vmmodifiedname_var
       adminUsername: vmadmin
       customData: cloudinit
       linuxConfiguration: {
