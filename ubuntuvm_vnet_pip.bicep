@@ -1,11 +1,13 @@
+targetScope = 'resourceGroup'
+
 @description('The size of the vm')
 param vmsize string = 'Standard_B1ms'
 
 @maxLength(10)
-param vmname string = 'msa'
+param prefix string = 'msa'
 
 @description('VNet name')
-param vnetName string = 'VNet1'
+param vnetName string = 'VNET001'
 
 @description('Address prefix')
 param vnetAddressPrefix string = '10.10.0.0/16'
@@ -16,8 +18,8 @@ param subnet1Prefix string = '10.10.1.0/24'
 @description('Subnet 1 Name')
 param subnet1Name string = 'Default'
 
-@description('Unique DNS Name for the Public IP used to access the Virtual Machine.')
-param dnsLabelPrefix string = toLower('${vmname}-${uniqueString(resourceGroup().id, vmname)}')
+// @description('Unique DNS Name for the Public IP used to access the Virtual Machine.')
+// param dnsLabelPrefix string = toLower('${prefix}-${uniqueString(resourceGroup().id, prefix)}')
 
 @description('Location for all resources.')
 param location string = resourceGroup().location
@@ -25,15 +27,15 @@ param location string = resourceGroup().location
 @description('Administrator Username')
 param vmadmin string = 'vmadmin'
 
-@description('The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version.')
-@allowed([
-  '12.04.5-LTS'
-  '14.04.5-LTS'
-  '16.04.0-LTS'
-  '18.04-LTS'
-  '20.04-LTS'
-])
-param ubuntuOSVersion string = '20.04-LTS'
+// @description('The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version.')
+// @allowed([
+//   '12.04.5-LTS'
+//   '14.04.5-LTS'
+//   '16.04.0-LTS'
+//   '18.04-LTS'
+//   '20.04-LTS'
+// ])
+// param ubuntuOSVersion string = '20.04-LTS'
 
 param env string = 'Dev'
 
@@ -41,14 +43,17 @@ param env string = 'Dev'
 param yourip string = '95.108.30.54' // run curl testip.fun to know yourip
 
 var loc = (location == 'francecentral') ? 'frc' : (location == 'germanywestcentral') ? 'gwc' : '${location}'
-var vmmmainname = toLower('${vmname}${loc}${env}')
+var mmainname = toLower('${prefix}${loc}${env}')
 // var vmmmainname = toLower('${vmname}-${uniqueString(resourceGroup().id, vmname)}')
-var vmmodifiedname_var = '${vmmmainname}_VM'
-var publicIPAddressName_var = '${vmmmainname}_PIP'
-var nsgnic = '${vmmmainname}_NSG'
-var subnetnsg = '${vmmmainname}_subnet_NSG'
-var nicname_var = '${vmmmainname}_NIC'
-var ipconfig = 'ipconfig_${nicname_var}'
+var vmmodifiedname_var = '${mmainname}VM001'
+var vnetfullname = '${mmainname}_${vnetName}'
+var publicIPAddressName_var = '${mmainname}_PIP001'
+var dnsLabelPrefix = toLower(vmmodifiedname_var)
+var nsgnic = '${mmainname}_NSG001'
+var subnetnsg = '${mmainname}${subnet1Name}subnet_NSG001'
+var nicname_var = '${vmmodifiedname_var}_NIC1'
+var ipconfig = 'ipconfig1'
+var cloudinit = 'I2Nsb3VkLWNvbmZpZwpwYWNrYWdlX3VwZ3JhZGU6IHRydWUKcGFja2FnZXM6CiAgLSBuZ2lueAogIC0gY3VybAogIC0gaHRvcAogIC0gdWZ3CnJ1bmNtZDoKICAtIHN5c3RlbWN0bCBlbmFibGUgLS1ub3cgbmdpbngKCg=='
 
 resource nsgmodifiedname 'Microsoft.Network/networkSecurityGroups@2020-11-01' = {
   name: nsgnic
@@ -84,11 +89,26 @@ resource nsg2 'Microsoft.Network/networkSecurityGroups@2020-11-01' = {
     Owner: 'Marek'
   }
   properties: {
+    securityRules: [
+      {
+        name: 'default-allow-ssh-network'
+        properties: {
+          protocol: 'Tcp'
+          sourcePortRange: '*'
+          destinationPortRange: '22'
+          sourceAddressPrefix: '${yourip}/32'
+          destinationAddressPrefix: 'VirtualNetwork'
+          access: 'Allow'
+          priority: 1000
+          direction: 'Inbound'
+        }
+      }
+    ]
   }
 }
 
 resource vnet 'Microsoft.Network/virtualNetworks@2020-11-01' = {
-  name: vnetName
+  name: vnetfullname
   location: location
   properties: {
     addressSpace: {
@@ -211,9 +231,9 @@ resource vmmodifiedname 'Microsoft.Compute/virtualMachines@2020-12-01' = {
       }
     }
     osProfile: {
-      computerName: vmname
+      computerName: prefix
       adminUsername: vmadmin
-      customData: 
+      customData: cloudinit
       linuxConfiguration: {
         provisionVMAgent: true
         disablePasswordAuthentication: true
@@ -223,10 +243,10 @@ resource vmmodifiedname 'Microsoft.Compute/virtualMachines@2020-12-01' = {
               keyData: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCcCtxJmut0DIZm5zaF1t0qadM1pdTrOlbz0N32GQMtaR3PxUYmM3PUozSFuKjsO9wWeLQJ5RYuKkUKhMuObLlUMvTOPulxP+9akNgdZoLn4NPAB4tI0GuSAFzOYsJ9NSKyw83Ed9kBh4Muz1LEVCPefWPCQKjU2oZnMosJ/DVv58UmnbQaVk+25rFu9Bg3Q5WZ63QIMph0Espg1KTjMm5+5ROlUw4X1vecE6XtvCMJNcKdppJP95bVOSLAXs5BBkLPjZx/ZUyH+1p+o6egaYr4PKxrjszDcxthmJ30COiTohQYqQxbmMiQ5arUFKgE9t+yBBKcJ0MsoiM0XTd52OFuqxY2jq4B7kEHrmwbOcsqKp60bN2WJBTQQlwUNnI1iEscF49iGHppe0P0pOmCcQ0adAE7T5JOmdzAR7q0ofVO2LvRBWc8IaFCbzGnw3xJ5xyi7ctXURNLjWIL5LSNoUKkTT2yMS3dM9eAH8z/88UN39Fh8h3KTVbV3tz86OBFudAwbrjcp2Nm2l58oHgCMhIb/5UwEUxHVZyekFIIVI/GHRV536K7jgyiH8JraX4QTeU/+riG2k59JXDPmrhES+BBXd+tSwW3j9Pa58ITp002gsPxn+KHOZQuunDhStn/HEUNqdSjfhHke0KB05/t9VByrNYJ4Jy8Gbt2acL2NZ0j/w== marek@techfellow'
               path: '/home/vmadmin/.ssh/authorized_keys'
             }
-            {
-              keyData: 'ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBABw9mlMPp1pSyqeei9JwAdLaakAj3826sLxHeuwupLUo6IGTEgXA3Uw91BBlfewOuZdxFyg2uvzhBWWMYsXsdvFFAAYw80nwWM3P2j9GIo9kRBzZcM7qSrhVSXUM/sKh7ospUdqLQqzED/umoi5wzqYWYbBMX7pGYaHUpNqOOuDQD4/Iw== marek@techfellow\r\n'
-              path: '/home/vmadmin/.ssh/authorized_keys'
-            }
+            // {
+            //   keyData: 'ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBABw9mlMPp1pSyqeei9JwAdLaakAj3826sLxHeuwupLUo6IGTEgXA3Uw91BBlfewOuZdxFyg2uvzhBWWMYsXsdvFFAAYw80nwWM3P2j9GIo9kRBzZcM7qSrhVSXUM/sKh7ospUdqLQqzED/umoi5wzqYWYbBMX7pGYaHUpNqOOuDQD4/Iw== marek@techfellow\r\n'
+            //   path: '/home/vmadmin/.ssh/authorized_keys'
+            // }
           ]
         }
       }
