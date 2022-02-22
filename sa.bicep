@@ -10,13 +10,22 @@ param prefix string = 'msa'
 
 var loc = (location == 'francecentral') ? 'frc' : (location == 'germanywestcentral') ? 'gwc' : '${location}'
 
-var name_var = toLower('${prefix}${loc}${servicename}${env}')
+var name_var = toLower('${prefix}${loc}${servicename}${env}001')
 var sku_var = (env == 'Prod') ? 'Standard_GRS' : 'Standard_LRS'
 
 resource mystorageaccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   name: name_var
   location: location
   kind: 'StorageV2'
+  properties: {
+    accessTier: 'Cool'  
+    immutableStorageWithVersioning: {
+       enabled: true
+    }
+    minimumTlsVersion: 'TLS1_2'
+    supportsHttpsTrafficOnly: true
+    // allowSharedKeyAccess: false
+  }
   sku: {
     name: sku_var
   }
@@ -29,7 +38,15 @@ resource mystorageaccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
 resource mystorageaccountblob 'Microsoft.Storage/storageAccounts/blobServices@2021-06-01' ={
   name: 'default'
   parent: mystorageaccount
-
+  properties: {
+    changeFeed: {
+      enabled: true
+    }
+    deleteRetentionPolicy: {
+      enabled: true
+      days: 30
+    }
+  }
 }
 resource mystorageaccountcontainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' ={
   parent: mystorageaccountblob
