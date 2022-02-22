@@ -38,6 +38,8 @@ var virtualMachineSize = [
   'Standard_D4s_v3'
   'Standard_D8s_v3'
 ]
+// Standard_D8d_v4
+// Standard_D8a_v4
 
 var VNETName = '${vmNamePrefix}_VNET'
 var VNETPrefix = '172.16.0.0/16'
@@ -67,12 +69,12 @@ var operatingSystemValues = {
 
 resource ASG 'Microsoft.Network/applicationSecurityGroups@2021-05-01' = {
   name: 'ASG'
-  location: resourceGroup().location
+  location: location
 }
 
 resource NSG 'Microsoft.Network/networkSecurityGroups@2020-11-01' = {
   name: NSGname
-  location: resourceGroup().location
+  location: location
   properties: {
     securityRules: [
       {
