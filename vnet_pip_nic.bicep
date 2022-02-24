@@ -1,4 +1,4 @@
-targetScope = 'subscription'
+targetScope = 'resourceGroup'
 
 param location string = 'francecentral'
 @description('Address prefix')
@@ -13,12 +13,7 @@ param subnet1Name string = 'Default'
 var vnetName = 'VNET123'
 var pip = 'true'
 
-resource rg 'Microsoft.Resources/resourceGroups@2020-11-01' existing {
-  // no need for location property
-  name: 'existingrgname'
-}
-
-resource vnetName_resource 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+resource vnetName_resource 'Microsoft.Network/virtualNetworks@2021-05-01' = {
   name: vnetName
   location: location
   properties: {
@@ -28,7 +23,6 @@ resource vnetName_resource 'Microsoft.Network/virtualNetworks@2018-10-01' = {
       ]
     }
   }
-  scope: rg
 }
 
 resource vnetName_subnet1Name 'Microsoft.Network/virtualNetworks/subnets@2018-10-01' = {
@@ -70,7 +64,6 @@ resource vmNIC 'Microsoft.Network/networkInterfaces@2020-11-01' = {
     vnetName_resource
     //virtualMachine_PIP
   ]
-  scope: rg
 }
 
 resource virtualMachine_PIP 'Microsoft.Network/publicIPAddresses@2020-11-01' = {
@@ -82,5 +75,4 @@ resource virtualMachine_PIP 'Microsoft.Network/publicIPAddresses@2020-11-01' = {
       domainNameLabel: 'msatestpip123'
     }
   }
-  scope: rg
 }

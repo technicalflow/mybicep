@@ -4,13 +4,9 @@ param location string = deployment().location
 param basename string = 'msa'
 
 var loc = (location == 'francecentral') ? 'frc' : (location == 'germanywestcentral') ? 'gwc' : '${location}'
-
 var rg = '${basename}_${loc}_rg1'
-
 var containerrg1 = '${basename}_${loc}_crg1'
-
 var acrname = toLower('${basename}${loc}acr${uniqueString(containerGroup.id)}')
-
 var websites = [
   {
     name: 'webapp1'

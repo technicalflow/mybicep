@@ -1,6 +1,7 @@
 @minLength(3)
 @maxLength(11)
 param storagePrefix string
+param containerName string = 'c1'
 
 @allowed([
   'Standard_LRS'
@@ -15,7 +16,7 @@ param storagePrefix string
 param storageSKU string = 'Standard_LRS'
 param location string = resourceGroup().location
 
-param uniqueStorageName = '${storagePrefix}${uniqueString(resourceGroup().id)}'
+param uniqueStorageName string = '${storagePrefix}${uniqueString(resourceGroup().id)}'
 
 resource stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: uniqueStorageName
@@ -32,7 +33,7 @@ resource stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   }
 }
 
-resource sacontainer 'Microsoft.Storage/storageAccounts/blobservices/containers@2020-11-01' = {
+resource sacontainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-08-01' = {
     name: '${stg.name}/default/${containerName}'
 }
 
