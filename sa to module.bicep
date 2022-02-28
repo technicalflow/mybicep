@@ -7,7 +7,8 @@ resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' existing = {
 }
 module sacreate 'modules/sa_module.bicep' = {
     name: 'sa_create'
-    scope: rg
+    // scope: rg
+    scope: resourceGroup('msa_frc_rg1')
     params: {
         location: rg.location
         storagePrefix: 'msa'

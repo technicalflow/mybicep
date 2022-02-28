@@ -55,3 +55,5 @@ resource mystorageaccountcontainer 'Microsoft.Storage/storageAccounts/blobServic
 
 output sa_sku object = mystorageaccount.sku
 output sa_property object = mystorageaccount.properties.primaryEndpoints
+#disable-next-line outputs-should-not-contain-secrets
+output mykeys string = mystorageaccount.listKeys().keys[0].value

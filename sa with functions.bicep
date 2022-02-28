@@ -1,6 +1,8 @@
 targetScope = 'resourceGroup'
 param name string = 'sa'
 param env string = 'dev'
+param storageCount int = 2
+param createNewStorage bool = true
 
 var location = (env == 'prod') ? 'eastus' : 'westus'
 
@@ -37,6 +39,16 @@ resource prodstorageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = if 
   properties: {
     accessTier: 'Hot'
   }
+  resource service 'fileServices' = {
+    name: 'default'
+    resource share 'shares' = {
+      name: 'share1'
+      properties: {
+        accessTier: 'Hot'
+        enabledProtocols: 'NFS'
+      }
+    }
+  }
 }
 
 resource devstorageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = if (env == 'dev'){
@@ -51,11 +63,26 @@ resource devstorageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = if (
   }
 }
 
-resource prstorageaccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
-  name: '${fullname}${env}pr'
+@batchSize(1)
+resource prstorageaccount 'Microsoft.Storage/storageAccounts@2021-06-01' = [for i in range(0, storageCount): if(createNewStorage) {
+  name: 'pr${fullname}${env}${i}'
   location: location
   sku: {
     name: sku
   }
   kind: 'StorageV2'
-}
+}]
+
+output storageInfo array = [for i in range(0, storageCount): {
+  id: prstorageaccount[i].id
+  blobEndpoint: prstorageaccount[i].properties.primaryEndpoints.blob
+  status: prstorageaccount[i].properties.statusOfPrimary
+}]
+
+output storageaccounts array = [for (region, i) in regions: {
+  name: storageaccount[i].name
+  id: storageaccount[i].id
+}]
+
+output arrayLength int = length(regions)
+

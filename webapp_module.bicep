@@ -2,6 +2,7 @@ targetScope = 'subscription'
 param deployresourcegroup bool = true
 param location string = deployment().location
 param basename string = 'msa'
+param acrcount int = 2
 
 var loc = (location == 'francecentral') ? 'frc' : (location == 'germanywestcentral') ? 'gwc' : '${location}'
 var rg = '${basename}_${loc}_rg1'
@@ -60,11 +61,11 @@ module webapp 'modules/webapp.bicep' = [for site in websites: {
   ]
 }]
 
-module acr 'modules/container-registry.bicep' = {
+module acr 'modules/container-registry.bicep' = [for i in range(0, acrcount): {
   scope: containerGroup
   name: '${acrname}-deploy'
   params: {
-    name: acrname
+    name: 'acrname${i}'
     location: location
   }
-}
+}]
