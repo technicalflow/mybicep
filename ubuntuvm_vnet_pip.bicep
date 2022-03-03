@@ -50,11 +50,25 @@ var vnetfullname = '${mainname}_${vnetName}'
 var publicIPAddressName_var = '${mainname}pip001'
 var dnsLabelPrefix = toLower(vmname_var)
 var nsgnic = '${mainname}nsg001'
-var subnetnsg = '${mainname}${subnet1Name}subnetnsg001'
+var subnetnsg = '${mainname}${subnet1Name}nsg001'
 var nicname_var = '${vmname_var}nic1'
 var ipconfig = 'ipconfig1'
-var cloudinit = 'I2Nsb3VkLWNvbmZpZwpwYWNrYWdlX3VwZ3JhZGU6IHRydWUKcGFja2FnZXM6CiAgLSBjdXJsCiAgLSBodG9wCiAgLSB1ZncKcnVuY21kOgogIC0gc25hcCByZW1vdmUgbHhkCiAgLSBzbmFwIHJlZnJlc2gKICAtIHNuYXAgaW5zdGFsbCBseGQKCg=='
-
+var script = '''
+#cloud-config
+package_upgrade: true
+packages:
+- htop
+- gnupg
+- nano
+- ufw
+- curl
+runcmd:
+- snap remove lxd
+- snap refresh
+- snap install lxd
+'''
+// var cloudinit = 'I2Nsb3VkLWNvbmZpZwpwYWNrYWdlX3VwZ3JhZGU6IHRydWUKcGFja2FnZXM6CiAgLSBjdXJsCiAgLSBodG9wCiAgLSB1ZncKcnVuY21kOgogIC0gc25hcCByZW1vdmUgbHhkCiAgLSBzbmFwIHJlZnJlc2gKICAtIHNuYXAgaW5zdGFsbCBseGQKCg=='
+var scriptdeploy = base64(script)
 // var cloudinitnginx = 'I2Nsb3VkLWNvbmZpZwpwYWNrYWdlX3VwZ3JhZGU6IHRydWUKcGFja2FnZXM6CiAgLSBuZ2lueAogIC0gY3VybAogIC0gaHRvcAogIC0gdWZ3CnJ1bmNtZDoKICAtIHN5c3RlbWN0bCBlbmFibGUgLS1ub3cgbmdpbngKCg=='
 
 resource nsg 'Microsoft.Network/networkSecurityGroups@2020-11-01' = {
@@ -235,7 +249,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
     osProfile: {
       computerName: vmname_var
       adminUsername: vmadmin
-      customData: cloudinit
+      customData: scriptdeploy
       linuxConfiguration: {
         provisionVMAgent: true
         disablePasswordAuthentication: true
@@ -269,3 +283,8 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   //   }
   // }
 }
+
+output scriptoutput string = scriptdeploy
+output publicipdns string = publicIPAddressName.properties.dnsSettings.fqdn
+output publicip string = publicIPAddressName.properties.ipAddress
+output username string = vm.properties.osProfile.adminUsername
