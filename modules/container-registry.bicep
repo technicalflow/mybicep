@@ -1,5 +1,6 @@
 targetScope = 'resourceGroup'
 
+
 @description('Location')
 param location string = resourceGroup().location
 
