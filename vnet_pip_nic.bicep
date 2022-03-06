@@ -9,11 +9,11 @@ param subnet1Prefix string = '10.10.1.0/24'
 
 @description('Subnet 1 Name')
 param subnet1Name string = 'Default'
+param pip bool = true
 
 var vnetName = 'VNET123'
-var pip = 'true'
 
-resource vnetName_resource 'Microsoft.Network/virtualNetworks@2021-05-01' = {
+resource vnet 'Microsoft.Network/virtualNetworks@2021-05-01' = {
   name: vnetName
   location: location
   properties: {
@@ -25,11 +25,22 @@ resource vnetName_resource 'Microsoft.Network/virtualNetworks@2021-05-01' = {
   }
 }
 
-resource vnetName_subnet1Name 'Microsoft.Network/virtualNetworks/subnets@2018-10-01' = {
-  parent: vnetName_resource
+resource vnet_subnet1 'Microsoft.Network/virtualNetworks/subnets@2018-10-01' = {
+  parent: vnet
   name: subnet1Name
   properties: {
     addressPrefix: subnet1Prefix
+  }
+}
+
+resource virtualMachine_PIP 'Microsoft.Network/publicIPAddresses@2020-11-01' = {
+  name: 'msa_test_PIP'
+  location: location
+  properties: {
+    publicIPAllocationMethod: 'Dynamic'
+    dnsSettings: {
+      domainNameLabel: 'msatestpip123'
+    }
   }
 }
 
@@ -47,7 +58,7 @@ resource vmNIC 'Microsoft.Network/networkInterfaces@2020-11-01' = {
             id: virtualMachine_PIP.id
             } : {} 
           subnet: {
-            id: vnetName_subnet1Name.id
+            id: vnet_subnet1.id
           }
           // publicIPAddress: {
           //   id: virtualMachine_PIP.id
@@ -61,18 +72,7 @@ resource vmNIC 'Microsoft.Network/networkInterfaces@2020-11-01' = {
     enableIPForwarding: false
   }
   dependsOn: [
-    vnetName_resource
-    //virtualMachine_PIP
+    vnet
   ]
 }
 
-resource virtualMachine_PIP 'Microsoft.Network/publicIPAddresses@2020-11-01' = {
-  name: 'msa_test_PIP'
-  location: location
-  properties: {
-    publicIPAllocationMethod: 'Dynamic'
-    dnsSettings: {
-      domainNameLabel: 'msatestpip123'
-    }
-  }
-}

@@ -1,13 +1,13 @@
 targetScope = 'subscription'
 param deployresourcegroup bool = true
 param location string = deployment().location
-param basename string = 'msa'
+param prefix string = 'msa'
 param acrcount int = 2
 
 var loc = (location == 'francecentral') ? 'frc' : (location == 'germanywestcentral') ? 'gwc' : '${location}'
-var rg = '${basename}_${loc}_rg1'
-var containerrg1 = '${basename}_${loc}_crg1'
-var acrname = toLower('${basename}${loc}acr${uniqueString(containerGroup.id)}')
+var rg = '${prefix}_${loc}_rg1'
+var containerrg1 = '${prefix}_${loc}_crg1'
+var acrname = toLower('${prefix}${loc}acr${uniqueString(containerGroup.id)}')
 var websites = [
   {
     name: 'webapp1'
@@ -40,17 +40,18 @@ resource containerGroup 'Microsoft.Resources/resourceGroups@2021-04-01' = {
 
 module webplan 'modules/webplan.bicep' = {
   scope: rg1
-  name: '${basename}${loc}-appplan-deploy'
+  name: '${prefix}${loc}-appplan-deploy'
   params: {
-    appplanname: '${basename}${loc}-appplan'
+    appplanname: '${prefix}${loc}-appplan'
+    location: location
   }
 }
 
 module webapp 'modules/webapp.bicep' = [for site in websites: {
   scope: rg1
-  name: '${basename}${loc}-${site.name}-deploy'
+  name: '${prefix}${loc}-${site.name}-deploy'
   params:{
-    appname: '${basename}${loc}-${site.name}'
+    appname: '${prefix}${loc}-${site.name}'
     location: location
     appplanid: webplan.outputs.appiid
     dockerimage: 'techfellow/webappa'
@@ -63,9 +64,9 @@ module webapp 'modules/webapp.bicep' = [for site in websites: {
 
 module acr 'modules/container-registry.bicep' = [for i in range(0, acrcount): {
   scope: containerGroup
-  name: '${acrname}-deploy'
+  name: '${acrname}${i}-deploy'
   params: {
-    name: 'acrname${i}'
+    name: '${acrname}${i}'
     location: location
   }
 }]
