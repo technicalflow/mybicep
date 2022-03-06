@@ -84,3 +84,4 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2020-11-01' = {
 output testoutput string = '${uniqueString(resourceGroup().name)}'
 output testthreeoutput string = '${uniqueString(resourceGroup().location)}'
 output testtwooutput string = '${uniqueString(deployment().name)}1'
+output testidoutput string = '${uniqueString(resourceGroup().id)}'

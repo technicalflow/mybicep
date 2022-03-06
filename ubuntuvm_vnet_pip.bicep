@@ -67,7 +67,6 @@ runcmd:
 - snap refresh
 - snap install lxd
 '''
-// var cloudinit = 'I2Nsb3VkLWNvbmZpZwpwYWNrYWdlX3VwZ3JhZGU6IHRydWUKcGFja2FnZXM6CiAgLSBjdXJsCiAgLSBodG9wCiAgLSB1ZncKcnVuY21kOgogIC0gc25hcCByZW1vdmUgbHhkCiAgLSBzbmFwIHJlZnJlc2gKICAtIHNuYXAgaW5zdGFsbCBseGQKCg=='
 var scriptdeploy = base64(script)
 // var cloudinitnginx = 'I2Nsb3VkLWNvbmZpZwpwYWNrYWdlX3VwZ3JhZGU6IHRydWUKcGFja2FnZXM6CiAgLSBuZ2lueAogIC0gY3VybAogIC0gaHRvcAogIC0gdWZ3CnJ1bmNtZDoKICAtIHN5c3RlbWN0bCBlbmFibGUgLS1ub3cgbmdpbngKCg=='
 
@@ -264,24 +263,6 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
       }
     }
   }
-  // resource linuxVMExtensions 'extensions@2019-07-01' = {
-  //   name: 'name'
-  //   location: location
-  //   properties: {
-  //     publisher: 'Microsoft.Azure.Extensions'
-  //     type: 'CustomScript'
-  //     typeHandlerVersion: '2.1'
-  //     autoUpgradeMinorVersion: true
-  //     settings: {
-  //       fileUris: [
-  //         'fileUris'
-  //       ]
-  //     }
-  //     protectedSettings: {
-  //       commandToExecute: 'sh customScript.sh'
-  //     }
-  //   }
-  // }
 }
 
 output scriptoutput string = scriptdeploy
