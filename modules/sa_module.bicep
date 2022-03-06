@@ -1,7 +1,7 @@
 @minLength(3)
 @maxLength(11)
 param storagePrefix string
-param containerName string = 'c1'
+param containerName string = 'container1'
 
 @allowed([
   'Standard_LRS'
@@ -16,7 +16,7 @@ param containerName string = 'c1'
 param storageSKU string = 'Standard_LRS'
 param location string = resourceGroup().location
 
-param uniqueStorageName string = '${storagePrefix}${uniqueString(resourceGroup().id)}'
+var uniqueStorageName = toLower('${storagePrefix}${uniqueString(resourceGroup().name)}')
 
 resource stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: uniqueStorageName
@@ -29,7 +29,7 @@ resource stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
     supportsHttpsTrafficOnly: true
     minimumTlsVersion: 'TLS1_2'
     allowBlobPublicAccess: false
-    accessTier: 'Cool'
+    accessTier: 'Hot'
   }
 }
 
@@ -39,5 +39,5 @@ resource sacontainer 'Microsoft.Storage/storageAccounts/blobServices/containers@
 
 output storageEndpoint object = stg.properties.primaryEndpoints
 output stgname string = stg.name
-output logpathe string = '${stg.name}/default/${containerName}'
+output logpath string = '${stg.name}/default/${containerName}'
 output stgid string = stg.id
