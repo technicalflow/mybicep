@@ -265,17 +265,6 @@ resource VM 'Microsoft.Compute/virtualMachines@2020-12-01' = [for item in vmfull
   ]
 }]
 
-resource extension 'Microsoft.Compute/virtualMachines/extensions@2021-11-01' = {
-  name: '${VM.name}/Microsoft.Powershell.DSC'
-  parent: VM.id
-  location: 
-  properties: {
-    publisher: 'Microsoft.Powershell'
-    type: 'DSC'
-
-  }
-}
-
 output Administrator string = virtualMachineAdminUserName
 output ResourceLocation string = location
 output PublicIP string = PUBLICIP.properties.ipAddress

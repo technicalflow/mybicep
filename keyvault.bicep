@@ -13,7 +13,7 @@ param env_tag string = 'Dev/Test'
 param basename string = 'msa'
 
 var loc = (location == 'francecentral') ? 'frc' : (location == 'germanywestcentral') ? 'gwc' : '${location}'
-var kvname = '${basename}${loc}_kv'
+var kvname = '${basename}${loc}kv'
 
 resource mykv 'Microsoft.KeyVault/vaults@2019-09-01' = {
   name: kvname
