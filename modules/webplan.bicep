@@ -19,7 +19,7 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2021-02-01' = {
   }
   tags: {
     Environment: 'Dev/Test'
-    Owner: 'Marek Serba'
+    Owner: 'Marek'
   }
 }
 

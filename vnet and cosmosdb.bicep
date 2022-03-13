@@ -147,3 +147,19 @@ resource cosmosPrivateEndpointDnsLink 'Microsoft.Network/privateEndpoints/privat
     ]
   }
 }
+
+param logAnalyticsWorkspaceId string = ''
+
+resource cosmosDBAccountDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' =  if (logAnalyticsWorkspaceId != '') {
+  scope: cosmosdb
+  name: 'route-logs-to-log-analytics'
+  properties: {
+    workspaceId: logAnalyticsWorkspaceId
+    logs: [
+      {
+        category: 'DataPlaneRequests'
+        enabled: true
+      }
+    ]
+  }
+}
