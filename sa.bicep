@@ -31,7 +31,7 @@ resource mystorageaccount 'Microsoft.Storage/storageAccounts@2021-06-01' = {
   }
   tags: {
     Environment: env 
-    Owner: 'Marek Serba'
+    Owner: 'Marek'
   }
 }
 
@@ -53,7 +53,26 @@ resource mystorageaccountcontainer 'Microsoft.Storage/storageAccounts/blobServic
   name: 'container1'
 }
 
+param roleDefinitionResourceId string = 'b24988ac-6180-42a0-ab88-20f7382dd24c' //contributor role
+
+resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+  name: 'msa-managedid0001'
+  location: location
+}
+
+resource roleAssignmentsa 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  scope: mystorageaccount
+  name: guid(mystorageaccount.id, managedIdentity.id, roleDefinitionResourceId)
+  properties: {
+    description: 'msaroleassignement'
+    roleDefinitionId: roleDefinitionResourceId
+    principalId: managedIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
 output sa_sku object = mystorageaccount.sku
 output sa_property object = mystorageaccount.properties.primaryEndpoints
 #disable-next-line outputs-should-not-contain-secrets
 output mykeys string = mystorageaccount.listKeys().keys[0].value
+output mymanagedid string = managedIdentity.properties.principalId
